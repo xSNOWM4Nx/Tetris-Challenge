@@ -1,0 +1,81 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TetrisChallenge.UI.Web", "src\TetrisChallenge.UI.Web\TetrisChallenge.UI.Web.csproj", "{9EAC6F9B-4AC1-43A6-BF39-514BB9BD7EFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TetrisChallenge.Domain", "src\TetrisChallenge.Domain\TetrisChallenge.Domain.csproj", "{DB94894A-B87C-46C7-ABC8-CFFEC2F255FC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TetrisChallenge.Application", "src\TetrisChallenge.Application\TetrisChallenge.Application.csproj", "{F8C1C381-94E0-4748-9A49-CA76A5F7714E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TetrisChallenge.Infrastructure.Data", "src\TetrisChallenge.Infrastructure.Data\TetrisChallenge.Infrastructure.Data.csproj", "{B610AE7C-8319-4708-953F-3241FAF7E045}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TetrisChallenge.Infrastructure.Identity", "src\TetrisChallenge.Infrastructure.Identity\TetrisChallenge.Infrastructure.Identity.csproj", "{7A1486C1-3FB6-4600-87A5-5C4739312581}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TetrisChallenge.Infrastructure.Messaging", "src\TetrisChallenge.Infrastructure.Messaging\TetrisChallenge.Infrastructure.Messaging.csproj", "{5E1BF25F-B70D-42F1-8B45-56D96FA93DF9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TetrisChallenge.Infrastructure.IoC", "src\TetrisChallenge.Infrastructure.IoC\TetrisChallenge.Infrastructure.IoC.csproj", "{0B7E9FA3-D236-49D3-BC8F-0964E2BE4821}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D3D35C6B-ED22-4EA5-87E5-BA8F7FB225DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D93AD18A-1D9D-4D48-8C56-C0D03AD5A96C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TetrisChallenge.Domain.Test", "test\TetrisChallenge.Domain.Test\TetrisChallenge.Domain.Test.csproj", "{D8619166-7C5E-4B62-8FBC-FE20F30ED8FE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9EAC6F9B-4AC1-43A6-BF39-514BB9BD7EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EAC6F9B-4AC1-43A6-BF39-514BB9BD7EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EAC6F9B-4AC1-43A6-BF39-514BB9BD7EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EAC6F9B-4AC1-43A6-BF39-514BB9BD7EFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB94894A-B87C-46C7-ABC8-CFFEC2F255FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB94894A-B87C-46C7-ABC8-CFFEC2F255FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB94894A-B87C-46C7-ABC8-CFFEC2F255FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB94894A-B87C-46C7-ABC8-CFFEC2F255FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8C1C381-94E0-4748-9A49-CA76A5F7714E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8C1C381-94E0-4748-9A49-CA76A5F7714E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8C1C381-94E0-4748-9A49-CA76A5F7714E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8C1C381-94E0-4748-9A49-CA76A5F7714E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B610AE7C-8319-4708-953F-3241FAF7E045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B610AE7C-8319-4708-953F-3241FAF7E045}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B610AE7C-8319-4708-953F-3241FAF7E045}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B610AE7C-8319-4708-953F-3241FAF7E045}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A1486C1-3FB6-4600-87A5-5C4739312581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A1486C1-3FB6-4600-87A5-5C4739312581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A1486C1-3FB6-4600-87A5-5C4739312581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A1486C1-3FB6-4600-87A5-5C4739312581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E1BF25F-B70D-42F1-8B45-56D96FA93DF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E1BF25F-B70D-42F1-8B45-56D96FA93DF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E1BF25F-B70D-42F1-8B45-56D96FA93DF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E1BF25F-B70D-42F1-8B45-56D96FA93DF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B7E9FA3-D236-49D3-BC8F-0964E2BE4821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B7E9FA3-D236-49D3-BC8F-0964E2BE4821}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B7E9FA3-D236-49D3-BC8F-0964E2BE4821}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B7E9FA3-D236-49D3-BC8F-0964E2BE4821}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8619166-7C5E-4B62-8FBC-FE20F30ED8FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8619166-7C5E-4B62-8FBC-FE20F30ED8FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8619166-7C5E-4B62-8FBC-FE20F30ED8FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8619166-7C5E-4B62-8FBC-FE20F30ED8FE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9EAC6F9B-4AC1-43A6-BF39-514BB9BD7EFA} = {D3D35C6B-ED22-4EA5-87E5-BA8F7FB225DE}
+		{DB94894A-B87C-46C7-ABC8-CFFEC2F255FC} = {D3D35C6B-ED22-4EA5-87E5-BA8F7FB225DE}
+		{F8C1C381-94E0-4748-9A49-CA76A5F7714E} = {D3D35C6B-ED22-4EA5-87E5-BA8F7FB225DE}
+		{B610AE7C-8319-4708-953F-3241FAF7E045} = {D3D35C6B-ED22-4EA5-87E5-BA8F7FB225DE}
+		{7A1486C1-3FB6-4600-87A5-5C4739312581} = {D3D35C6B-ED22-4EA5-87E5-BA8F7FB225DE}
+		{5E1BF25F-B70D-42F1-8B45-56D96FA93DF9} = {D3D35C6B-ED22-4EA5-87E5-BA8F7FB225DE}
+		{0B7E9FA3-D236-49D3-BC8F-0964E2BE4821} = {D3D35C6B-ED22-4EA5-87E5-BA8F7FB225DE}
+		{D8619166-7C5E-4B62-8FBC-FE20F30ED8FE} = {D93AD18A-1D9D-4D48-8C56-C0D03AD5A96C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F8EE793-FF01-4341-979F-1239626C01E7}
+	EndGlobalSection
+EndGlobal
