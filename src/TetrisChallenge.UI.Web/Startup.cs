@@ -33,7 +33,7 @@ namespace TetrisChallenge.UI.Web
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "ClientApp/build";
+                configuration.RootPath = "ReactClientApp/build";
             });
         }
 
@@ -66,7 +66,7 @@ namespace TetrisChallenge.UI.Web
 
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "ClientApp";
+                spa.Options.SourcePath = "ReactClientApp";
 
                 if (env.IsDevelopment())
                 {

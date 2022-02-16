@@ -1,5 +1,5 @@
 # Tetris-Challenge
-## 🚧 This Repo is under Construction! 🚧
+## 🚧 This Repo is under Construction 🚧
  An open-source project written in C#, React and TypeScript.
 
 The goal of this project is to implement the most common used technologies with .NET and React. In combination with various architecture patterns, this solution is intended to solve a wide variety of challenges that are placed on a scalable web application.
