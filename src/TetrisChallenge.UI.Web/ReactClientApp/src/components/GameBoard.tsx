@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Box, Typography, Fab } from '@mui/material';
+import { AutoSizeContainer } from '@daniel.neuweiler/react-lib-module';
 
 import {
   IGameBoardBlock, getGameBoard, getGameBoardRow, getGameSession, GameConstants, IGameSession, GameStateEnumeration,
   ITetrominoBlock, TetrominoList, getFilledRows
 } from './../types';
+
+import TetrominoRenderer from './TetrominoRenderer';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -369,6 +372,60 @@ const GameBoard: React.FC<Props> = (props) => {
     return true;
   };
 
+  const renderStats = () => {
+
+    return (
+
+      <AutoSizeContainer
+        renderMode='Direct'
+        onRenderSizedChild={(height, width) =>
+
+          <Box
+            sx={{
+              paddingRight: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignContent: 'flex-end',
+              alignItems: 'flex-end'
+            }}>
+
+            <Typography
+              variant='h6'>
+              {'Lines'}
+            </Typography>
+            <Typography
+              variant='h3'>
+              {gameSessionRef.current.lines}
+            </Typography>
+
+            <Box sx={{ width: (theme) => theme.spacing(4) }} />
+
+            <Typography
+              variant='h6'>
+              {'Level'}
+            </Typography>
+            <Typography
+              variant='h3'>
+              {gameSessionRef.current.level}
+            </Typography>
+
+            <Box sx={{ width: (theme) => theme.spacing(4) }} />
+
+            <Typography
+              variant='h6'>
+              {'Score'}
+            </Typography>
+            <Typography
+              variant='h3'>
+              {gameSessionRef.current.score}
+            </Typography>
+          </Box>
+
+        } />
+
+    );
+  };
+
   const renderGameBoard = () => {
 
     return (
@@ -422,13 +479,58 @@ const GameBoard: React.FC<Props> = (props) => {
     );
   };
 
+  const renderPreview = () => {
+
+    return (
+
+      <AutoSizeContainer
+        renderMode='Direct'
+        onRenderSizedChild={(height, width) =>
+
+          <Box
+            sx={{
+              paddingLeft: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignContent: 'flex-start',
+              alignItems: 'flex-start'
+            }}>
+
+            <TetrominoRenderer
+              height={height}
+              width={width}
+              tetromino={tetrominoQueue[0]}
+              maxBlockSize={blockSize} />
+
+            <Box sx={{ width: (theme) => theme.spacing(1) }} />
+
+            <TetrominoRenderer
+              height={height}
+              width={width}
+              tetromino={tetrominoQueue[1]}
+              maxBlockSize={blockSize} />
+
+            <Box sx={{ width: (theme) => theme.spacing(1) }} />
+
+            <TetrominoRenderer
+              height={height}
+              width={width}
+              tetromino={tetrominoQueue[2]}
+              maxBlockSize={blockSize} />
+          </Box>
+
+        } />
+
+    );
+  };
+
   const renderMovementControls = () => {
 
     return (
 
       <Box
         sx={{
-          width: '50%',
+          // width: '50%',
           display: 'flex',
           flexDirection: 'column',
           alignContent: 'center',
@@ -518,7 +620,6 @@ const GameBoard: React.FC<Props> = (props) => {
     return (
       <Box
         sx={{
-          width: '50%',
           display: 'flex',
           flexDirection: 'row',
           alignContent: 'center',
@@ -595,13 +696,17 @@ const GameBoard: React.FC<Props> = (props) => {
       <Box
         sx={{
           height: controlPanelHeight,
-          width: '100%',
           backgroundColor: 'purple',
           display: 'flex',
           flexDirection: 'row',
+          justifyContent: 'center',
+          justifyItems: 'center',
         }}>
 
         {renderMovementControls()}
+
+        <Box sx={{ width: (theming) => theming.spacing(4) }} />
+
         {renderActionControls()}
 
       </Box>
@@ -614,18 +719,44 @@ const GameBoard: React.FC<Props> = (props) => {
       sx={{
         height: '100%',
         display: 'flex',
-        flexDirection: 'column',
-        alignContent: 'center',
-        alignItems: 'center',
-        justifyContent: 'center',
-        justifyItems: 'center'
+        flexDirection: 'column'
       }}>
 
-      {renderGameBoard()}
+      <Box
+        sx={{
+          width: '100%',
+          justifyContent: 'center',
+          justifyItems: 'center',
+          flex: 'auto',
+          display: 'flex',
+          flexDirection: 'row'
+        }}>
+
+        <Box
+          sx={{
+            width: '20%',
+            backgroundColor: 'green'
+          }}>
+          {renderStats()}
+        </Box>
+        <Box
+          sx={{
+            justifySelf: 'center',
+            backgroundColor: 'yellow'
+          }}>
+          {renderGameBoard()}
+        </Box>
+        <Box
+          sx={{
+            minWidth: '20%',
+            backgroundColor: 'blue'
+          }}>
+          {renderPreview()}
+        </Box>
+      </Box>
+
       {renderGameControls()}
-
     </Box>
-
   );
 }
 

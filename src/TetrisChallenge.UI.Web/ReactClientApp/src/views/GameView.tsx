@@ -36,28 +36,14 @@ const ErrorView: React.FC<Props> = (props) => {
 
         <Grid
           item={true}
-          lg={4}
-          md={6}
-          sm={6}
-          xs={6}>
+          lg={6}
+          md={12}
+          sm={12}
+          xs={12}>
 
           <AutoSizeContainer
+            renderMode='Direct'
             onRenderSizedChild={renderGameBoard} />
-        </Grid>
-        <Grid
-          item={true}
-          lg={4}
-          md={6}
-          sm={6}
-          xs={6}>
-          <Box
-            sx={{
-              height: '100%',
-              width: '100%',
-              backgroundColor: 'blue'
-            }}>
-
-          </Box>
         </Grid>
         <Grid
           item={true}
@@ -67,7 +53,7 @@ const ErrorView: React.FC<Props> = (props) => {
               lg: 'block'
             }
           }}
-          lg={4}>
+          lg={6}>
           <Box
             sx={{
               height: '100%',

@@ -78,7 +78,6 @@ const RouterPage: React.FC<Props> = (props) => {
       sx={{
         height: '100vh',
         width: '100vw',
-        minWidth: 800,
         overflow: 'hidden',
         userSelect: 'none',
         display: 'flex',

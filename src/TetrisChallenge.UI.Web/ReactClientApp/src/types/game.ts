@@ -31,7 +31,9 @@ export enum GameStateEnumeration {
 };
 
 export interface IGameSession {
+  lines: number;
   level: number;
+  score: number;
   speedTick: number;
 };
 
@@ -71,7 +73,9 @@ export const getSpeedTick = (level: number) => {
 export const getGameSession = () => {
 
   var gameSession: IGameSession = {
+    lines: 0,
     level: 0,
+    score: 0,
     speedTick: getSpeedTick(0)
   };
 
