@@ -6,7 +6,12 @@ import { SxProps, Theme } from '@mui/system';
 export class GameConstants {
   public static BlockCountWidth: number = 10;
   public static BlockCountHeight: number = 20;
-  public static TetrominoQueueLength: number = 3;
+  public static TetrominoQueueLength: number = 5;
+  public static LevelUpLineCount: number = 10;
+  public static LineScoreSingle: number = 100;
+  public static LineScoreDouble: number = 300;
+  public static LineScoreTriple: number = 500;
+  public static LineScoreTetris: number = 800;
 };
 
 export interface IBlock {
@@ -67,14 +72,37 @@ export const getGameBoardRow = (blockCountWidth: number, rowPosY?: number) => {
 };
 
 export const getSpeedTick = (level: number) => {
-  return 800 - (level * 83.3333);
+  return 800 - ((level - 1) * 83.3333);
+};
+
+export const getLevel = (lineCount: number) => {
+  return Math.floor(lineCount / GameConstants.LevelUpLineCount) + 1;
+};
+
+export const getLineScore = (currentLevel: number, currentLineCount: number) => {
+
+  if (currentLineCount <= 0)
+    return 0;
+
+  switch (currentLineCount) {
+    case 1:
+      return currentLevel * GameConstants.LineScoreSingle;
+    case 2:
+      return currentLevel * GameConstants.LineScoreDouble;
+    case 3:
+      return currentLevel * GameConstants.LineScoreTriple;
+    case 4:
+      return currentLevel * GameConstants.LineScoreTetris;
+    default:
+      return 0;
+  }
 };
 
 export const getGameSession = () => {
 
   var gameSession: IGameSession = {
     lines: 0,
-    level: 0,
+    level: getLevel(0),
     score: 0,
     speedTick: getSpeedTick(0)
   };

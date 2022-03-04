@@ -4,7 +4,7 @@ import { AutoSizeContainer } from '@daniel.neuweiler/react-lib-module';
 
 import {
   IGameBoardBlock, getGameBoard, getGameBoardRow, getGameSession, GameConstants, IGameSession, GameStateEnumeration,
-  ITetrominoBlock, TetrominoList, getFilledRows
+  ITetrominoBlock, TetrominoList, getFilledRows, getLevel, getLineScore, getSpeedTick
 } from './../types';
 
 import TetrominoRenderer from './TetrominoRenderer';
@@ -291,6 +291,13 @@ const GameBoard: React.FC<Props> = (props) => {
       gameBoardRef.current.unshift(getGameBoardRow(GameConstants.BlockCountWidth));
     })
 
+    var newGameSession = { ...gameSessionRef.current }
+    newGameSession.lines += filledRowIndices.length;
+    newGameSession.level = getLevel(newGameSession.lines);
+    newGameSession.score += getLineScore(newGameSession.level, filledRowIndices.length);
+    newGameSession.speedTick = getSpeedTick(newGameSession.level);
+
+    setGameSession(newGameSession);
     setGameBoard([...gameBoardRef.current]);
 
     return true;
@@ -696,7 +703,6 @@ const GameBoard: React.FC<Props> = (props) => {
       <Box
         sx={{
           height: controlPanelHeight,
-          backgroundColor: 'purple',
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
@@ -734,22 +740,19 @@ const GameBoard: React.FC<Props> = (props) => {
 
         <Box
           sx={{
-            width: '20%',
-            backgroundColor: 'green'
+            width: '20%'
           }}>
           {renderStats()}
         </Box>
         <Box
           sx={{
-            justifySelf: 'center',
-            backgroundColor: 'yellow'
+            justifySelf: 'center'
           }}>
           {renderGameBoard()}
         </Box>
         <Box
           sx={{
-            minWidth: '20%',
-            backgroundColor: 'blue'
+            minWidth: '20%'
           }}>
           {renderPreview()}
         </Box>
