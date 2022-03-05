@@ -12,6 +12,8 @@ export class GameConstants {
   public static LineScoreDouble: number = 300;
   public static LineScoreTriple: number = 500;
   public static LineScoreTetris: number = 800;
+  public static SoftDropScorePerBlock: number = 1;
+  public static HardDropScorePerBlock: number = 2;
 };
 
 export interface IBlock {
@@ -36,10 +38,25 @@ export enum GameStateEnumeration {
 };
 
 export interface IGameSession {
+  moves: number;
   lines: number;
   level: number;
   score: number;
+  hardDrops: number;
   speedTick: number;
+};
+
+export interface IMoveSession {
+  lines: number;
+  score: number;
+  rotationsCW: number;
+  rotationsCCW: number;
+};
+
+export interface IHardDropSession {
+  hardDrop: boolean;
+  hardDropBlockCount: number;
+  score: number;
 };
 
 export const getGameBoard = (blockCountHeight: number, blockCountWidth: number) => {
@@ -100,14 +117,39 @@ export const getLineScore = (currentLevel: number, currentLineCount: number) => 
 
 export const getGameSession = () => {
 
-  var gameSession: IGameSession = {
+  var session: IGameSession = {
+    moves: 0,
     lines: 0,
     level: getLevel(0),
     score: 0,
+    hardDrops: 0,
     speedTick: getSpeedTick(0)
   };
 
-  return gameSession;
+  return session;
+};
+
+export const getMoveSession = () => {
+
+  var session: IMoveSession = {
+    lines: 0,
+    score: 0,
+    rotationsCW: 0,
+    rotationsCCW: 0
+  };
+
+  return session;
+};
+
+export const getHardDropSession = () => {
+
+  var session: IHardDropSession = {
+    hardDrop: false,
+    hardDropBlockCount: 0,
+    score: 0
+  };
+
+  return session;
 };
 
 export const getFilledRows = (gameboard: Array<Array<IGameBoardBlock>>) => {

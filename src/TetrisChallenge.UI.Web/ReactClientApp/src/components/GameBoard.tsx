@@ -3,7 +3,8 @@ import { Box, Typography, Fab } from '@mui/material';
 import { AutoSizeContainer } from '@daniel.neuweiler/react-lib-module';
 
 import {
-  IGameBoardBlock, getGameBoard, getGameBoardRow, getGameSession, GameConstants, IGameSession, GameStateEnumeration,
+  IGameBoardBlock, getGameBoard, getGameBoardRow, getGameSession, getMoveSession, getHardDropSession,
+  GameConstants, IGameSession, IMoveSession, IHardDropSession, GameStateEnumeration,
   ITetrominoBlock, TetrominoList, getFilledRows, getLevel, getLineScore, getSpeedTick
 } from './../types';
 
@@ -34,6 +35,9 @@ const GameBoard: React.FC<Props> = (props) => {
   const [gameBoard, setGameBoard] = useState<Array<Array<IGameBoardBlock>>>(getGameBoard(GameConstants.BlockCountHeight, GameConstants.BlockCountWidth));
   const [gameState, setGameState] = useState<GameStateEnumeration>(GameStateEnumeration.Init);
   const [gameSession, setGameSession] = useState<IGameSession>(getGameSession());
+  const [moveSession, setMoveSession] = useState<IMoveSession>(getMoveSession());
+  const [hardDropSession, setHardDropSession] = useState<IHardDropSession>(getHardDropSession());
+  const [moveCount, setMoveCount] = useState(0);
   const [tetrominoQueue, setTetrominoQueue] = useState<Array<ITetrominoBlock>>([]);
   const [activeTetromino, setActiveTetromino] = useState<ITetrominoBlock | null>(null);
 
@@ -49,6 +53,15 @@ const GameBoard: React.FC<Props> = (props) => {
 
   const gameSessionRef = useRef(gameSession);
   gameSessionRef.current = gameSession;
+
+  const moveSessionRef = useRef(moveSession);
+  moveSessionRef.current = moveSession;
+
+  const hardDropSessionRef = useRef(hardDropSession);
+  hardDropSessionRef.current = hardDropSession;
+
+  const moveCountRef = useRef(moveCount);
+  moveCountRef.current = moveCount;
 
   const tetrominoQueueRef = useRef(tetrominoQueue);
   tetrominoQueueRef.current = tetrominoQueue;
@@ -119,6 +132,28 @@ const GameBoard: React.FC<Props> = (props) => {
     }
 
   }, [gameStateRef.current]);
+  useEffect(() => {
+
+    var newGameSession = { ...gameSessionRef.current }
+    newGameSession.moves += moveCountRef.current;
+    newGameSession.level = getLevel(newGameSession.lines);
+    newGameSession.speedTick = getSpeedTick(newGameSession.level);
+
+    // Adding move session data
+    newGameSession.lines += moveSessionRef.current.lines;
+    newGameSession.score += moveSessionRef.current.score;
+
+    // Adding hard drop session data
+    if (hardDropSessionRef.current.hardDrop) {
+      newGameSession.hardDrops++;
+      newGameSession.score += hardDropSessionRef.current.score;
+    }
+
+    setGameSession(newGameSession);
+    setMoveSession(getMoveSession());
+    setHardDropSession(getHardDropSession());
+
+  }, [moveCountRef.current]);
 
   const play = () => {
 
@@ -291,13 +326,12 @@ const GameBoard: React.FC<Props> = (props) => {
       gameBoardRef.current.unshift(getGameBoardRow(GameConstants.BlockCountWidth));
     })
 
-    var newGameSession = { ...gameSessionRef.current }
-    newGameSession.lines += filledRowIndices.length;
-    newGameSession.level = getLevel(newGameSession.lines);
-    newGameSession.score += getLineScore(newGameSession.level, filledRowIndices.length);
-    newGameSession.speedTick = getSpeedTick(newGameSession.level);
+    var newMoveSession = { ...moveSessionRef.current }
+    newMoveSession.lines += filledRowIndices.length;
+    newMoveSession.score += getLineScore(gameSessionRef.current.level, filledRowIndices.length);
+    setMoveSession(newMoveSession);
 
-    setGameSession(newGameSession);
+    setMoveCount(moveCountRef.current + 1);
     setGameBoard([...gameBoardRef.current]);
 
     return true;
@@ -308,13 +342,22 @@ const GameBoard: React.FC<Props> = (props) => {
     if (activeTetrominoRef.current === null)
       return;
 
-    var rowCounter = 0;
+    var hardDropBlockCount = 0;
 
     while (moveTetromino(activeTetrominoRef.current, 0, 0, 1))
-      rowCounter++;
+      hardDropBlockCount++;
 
-    if (!fixTetromino())
+    var newHardDropSession = { ...hardDropSessionRef.current }
+    newHardDropSession.hardDrop = true;
+    newHardDropSession.hardDropBlockCount = hardDropBlockCount;
+    newHardDropSession.score = hardDropBlockCount * GameConstants.HardDropScorePerBlock;
+    setHardDropSession(newHardDropSession);
+
+    if (!fixTetromino()) {
+
       setGameState(GameStateEnumeration.Error);
+      return;
+    }
   };
 
   const tryDrawTetromino = (
