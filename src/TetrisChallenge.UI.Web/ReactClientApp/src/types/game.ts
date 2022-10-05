@@ -23,6 +23,11 @@ export interface IBlock {
   positionY: number;
 };
 
+export interface ITetrominoBlock extends IBlock {
+  rotation: number;
+  matrix: number[][][];
+};
+
 export interface IGameBoardBlock extends IBlock {
   isFilled: boolean;
 };
@@ -32,9 +37,12 @@ export enum GameStateEnumeration {
   Error,
   Idle,
   Paused,
+  MoveLeft,
+  MoveRight,
   GameOver,
   Spawning,
-  HardDrop
+  HardDrop,
+  SoftDrop
 };
 
 export interface IGameSession {
@@ -43,20 +51,26 @@ export interface IGameSession {
   level: number;
   score: number;
   hardDrops: number;
-  speedTick: number;
 };
 
-export interface IMoveSession {
-  lines: number;
+export interface IMoveData {
   score: number;
+  lines: number;
   rotationsCW: number;
   rotationsCCW: number;
-};
-
-export interface IHardDropSession {
   hardDrop: boolean;
   hardDropBlockCount: number;
-  score: number;
+};
+
+export interface IGameLoopData {
+  frameHandle: number;
+  lastTimeStamp: DOMHighResTimeStamp;
+  passedMillisecondsTick: number;
+  speedTick: number;
+  state: GameStateEnumeration;
+  lastState: GameStateEnumeration;
+  activeTetromino?: ITetrominoBlock;
+  moveData: IMoveData;
 };
 
 export const getGameBoard = (blockCountHeight: number, blockCountWidth: number) => {
@@ -92,6 +106,35 @@ export const getSpeedTick = (level: number) => {
   return 800 - ((level - 1) * 83.3333);
 };
 
+export const getMoveData = () => {
+
+  var moveData: IMoveData = {
+    score: 0,
+    lines: 0,
+    rotationsCW: 0,
+    rotationsCCW: 0,
+    hardDrop: false,
+    hardDropBlockCount: 0
+  };
+
+  return moveData;
+};
+
+export const getGameLoopData = () => {
+
+  var gameLoopData: IGameLoopData = {
+    frameHandle: 0,
+    lastTimeStamp: 0,
+    passedMillisecondsTick: 0,
+    speedTick: getSpeedTick(0),
+    state: GameStateEnumeration.Init,
+    lastState: GameStateEnumeration.Init,
+    moveData: getMoveData()
+  };
+
+  return gameLoopData;
+};
+
 export const getLevel = (lineCount: number) => {
   return Math.floor(lineCount / GameConstants.LevelUpLineCount) + 1;
 };
@@ -122,31 +165,7 @@ export const getGameSession = () => {
     lines: 0,
     level: getLevel(0),
     score: 0,
-    hardDrops: 0,
-    speedTick: getSpeedTick(0)
-  };
-
-  return session;
-};
-
-export const getMoveSession = () => {
-
-  var session: IMoveSession = {
-    lines: 0,
-    score: 0,
-    rotationsCW: 0,
-    rotationsCCW: 0
-  };
-
-  return session;
-};
-
-export const getHardDropSession = () => {
-
-  var session: IHardDropSession = {
-    hardDrop: false,
-    hardDropBlockCount: 0,
-    score: 0
+    hardDrops: 0
   };
 
   return session;

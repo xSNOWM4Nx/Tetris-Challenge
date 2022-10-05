@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { Box, Typography, Fab } from '@mui/material';
 import { AutoSizeContainer } from '@daniel.neuweiler/react-lib-module';
 
 import {
-  IGameBoardBlock, getGameBoard, getGameBoardRow, getGameSession, getMoveSession, getHardDropSession,
-  GameConstants, IGameSession, IMoveSession, IHardDropSession, GameStateEnumeration,
-  ITetrominoBlock, TetrominoList, getFilledRows, getLevel, getLineScore, getSpeedTick
+  IGameLoopData, getGameLoopData, IGameBoardBlock, getGameBoard, getGameBoardRow, getGameSession,
+  GameConstants, IGameSession, GameStateEnumeration,
+  ITetrominoBlock, TetrominoList, getFilledRows, getLevel, getMoveData, getSpeedTick, getLineScore
 } from './../types';
 
 import TetrominoRenderer from './TetrominoRenderer';
@@ -16,8 +16,9 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 interface ILocalProps {
-  height: number;
-  width: number;
+  // height: number;
+  // width: number;
+  showControlPanel?: boolean;
   borderSpacing?: number;
   backgroundColor?: string;
 }
@@ -28,46 +29,32 @@ const GameBoard: React.FC<Props> = (props) => {
   // Fields
   const contextName: string = 'GameBoard';
   const borderSpacing = (props.borderSpacing !== undefined) ? props.borderSpacing : 0
+  const statsWidthPercentage = 20;
+  const previewWidthPercentage = 20;
+  const boardWidthPercentage = 100 - statsWidthPercentage - previewWidthPercentage;
+  const statePanelHeight = 64;
   const controlPanelHeight = 192;
 
   // States
   const [blockSize, setBlockSize] = useState(0);
   const [gameBoard, setGameBoard] = useState<Array<Array<IGameBoardBlock>>>(getGameBoard(GameConstants.BlockCountHeight, GameConstants.BlockCountWidth));
-  const [gameState, setGameState] = useState<GameStateEnumeration>(GameStateEnumeration.Init);
   const [gameSession, setGameSession] = useState<IGameSession>(getGameSession());
-  const [moveSession, setMoveSession] = useState<IMoveSession>(getMoveSession());
-  const [hardDropSession, setHardDropSession] = useState<IHardDropSession>(getHardDropSession());
-  const [moveCount, setMoveCount] = useState(0);
   const [tetrominoQueue, setTetrominoQueue] = useState<Array<ITetrominoBlock>>([]);
-  const [activeTetromino, setActiveTetromino] = useState<ITetrominoBlock | null>(null);
 
   // Refs
-  const gameTickIdRef = useRef(0);
-  const playTimeTickIdRef = useRef(0);
+  const gameLoopDataRef = useRef<IGameLoopData>(getGameLoopData());
+
+  const blockSizeRef = useRef(blockSize);
+  blockSizeRef.current = blockSize;
 
   const gameBoardRef = useRef(gameBoard);
   gameBoardRef.current = gameBoard;
 
-  const gameStateRef = useRef(gameState);
-  gameStateRef.current = gameState;
-
   const gameSessionRef = useRef(gameSession);
   gameSessionRef.current = gameSession;
 
-  const moveSessionRef = useRef(moveSession);
-  moveSessionRef.current = moveSession;
-
-  const hardDropSessionRef = useRef(hardDropSession);
-  hardDropSessionRef.current = hardDropSession;
-
-  const moveCountRef = useRef(moveCount);
-  moveCountRef.current = moveCount;
-
   const tetrominoQueueRef = useRef(tetrominoQueue);
   tetrominoQueueRef.current = tetrominoQueue;
-
-  const activeTetrominoRef = useRef(activeTetromino);
-  activeTetrominoRef.current = activeTetromino;
 
   // Effects
   useEffect(() => {
@@ -77,7 +64,8 @@ const GameBoard: React.FC<Props> = (props) => {
     // document.addEventListener("keyup", handleKeyUp, false);
 
     fillTetrominoQueue();
-    play();
+    gameLoopDataRef.current.frameHandle = window.requestAnimationFrame(gameLoop);
+    gameLoopDataRef.current.state = GameStateEnumeration.Paused;
 
     // Unmount
     return () => {
@@ -86,125 +74,163 @@ const GameBoard: React.FC<Props> = (props) => {
       // document.removeEventListener("keyup", handleKeyUp, false);
 
       // Clear handles
-      clearTimeout(gameTickIdRef.current);
-      clearInterval(playTimeTickIdRef.current);
+      window.cancelAnimationFrame(gameLoopDataRef.current.frameHandle);
     }
   }, []);
-  useEffect(() => {
+  // useEffect(() => {
 
-    var blockHeightSize =
-      Math.floor((props.height - controlPanelHeight) / GameConstants.BlockCountHeight) -
-      (borderSpacing * 2);
+  //   var boardElementsHeight = statePanelHeight;
+  //   if (props.showControlPanel)
+  //     boardElementsHeight += controlPanelHeight;
 
-    var blockWidthSize =
-      Math.floor(props.width / GameConstants.BlockCountWidth) -
-      (borderSpacing * 2);
+  //   var blockHeightSize =
+  //     Math.floor((props.height - boardElementsHeight) / GameConstants.BlockCountHeight) -
+  //     (borderSpacing * 2);
 
-    var newBlockSize = blockHeightSize;
-    if (newBlockSize > blockWidthSize)
-      newBlockSize = blockWidthSize;
+  //   var blockWidthSize =
+  //     Math.floor((boardWidthPercentage * props.width / 100) / GameConstants.BlockCountWidth) -
+  //     (borderSpacing * 2);
 
-    setBlockSize(newBlockSize);
+  //   console.log('--------------->>')
+  //   console.log(blockHeightSize)
 
-  }, [props.width, props.height]);
-  useEffect(() => {
+  //   var newBlockSize = blockHeightSize;
+  //   if (newBlockSize > blockWidthSize)
+  //     newBlockSize = blockWidthSize;
 
-    switch (gameStateRef.current) {
-      case GameStateEnumeration.Error: {
+  //   setBlockSize(newBlockSize);
 
-        break;
-      }
-      case GameStateEnumeration.GameOver: {
+  // }, [props.width, props.height, props.showControlPanel]);
 
-        break;
-      }
-      case GameStateEnumeration.Spawning: {
+  const gameLoop = (timeStamp: DOMHighResTimeStamp) => {
 
-        spawnTetromino();
-        resetGameTick();
-        break;
-      }
-      case GameStateEnumeration.HardDrop: {
+    // Prepare time data
+    var passedMilliseconds = (timeStamp - gameLoopDataRef.current.lastTimeStamp);
+    var passedSeconds = passedMilliseconds / 1000;
+    gameLoopDataRef.current.lastTimeStamp = timeStamp;
+    gameLoopDataRef.current.passedMillisecondsTick += passedMilliseconds;
 
-        hardDropTetromino();
-        break;
-      }
+    // Calculate fps
+    var fps = Math.round(1 / passedSeconds);
+
+    updateSessionData();
+    updateGameState();
+
+    // Keep requesting new frames
+    gameLoopDataRef.current.frameHandle = window.requestAnimationFrame(gameLoop);
+  };
+
+  const updateGameState = () => {
+
+    if (gameLoopDataRef.current.state === GameStateEnumeration.Paused)
+      return;
+
+    if (gameLoopDataRef.current.state === GameStateEnumeration.Init) {
+
+      gameLoopDataRef.current.activeTetromino = undefined;
+      gameLoopDataRef.current.passedMillisecondsTick = 0;
+
+      setGameState(GameStateEnumeration.Spawning);
+      return;
     }
 
-  }, [gameStateRef.current]);
-  useEffect(() => {
+    if (gameLoopDataRef.current.state === GameStateEnumeration.Spawning) {
 
-    var newGameSession = { ...gameSessionRef.current }
-    newGameSession.moves += moveCountRef.current;
-    newGameSession.level = getLevel(newGameSession.lines);
-    newGameSession.speedTick = getSpeedTick(newGameSession.level);
+      gameLoopDataRef.current.activeTetromino = undefined;
+      gameLoopDataRef.current.passedMillisecondsTick = 0;
 
-    // Adding move session data
-    newGameSession.lines += moveSessionRef.current.lines;
-    newGameSession.score += moveSessionRef.current.score;
+      if (spawnTetromino()) {
+        setGameState(GameStateEnumeration.Idle);
+      }
+      else {
+        setGameState(GameStateEnumeration.GameOver);
+      }
 
-    // Adding hard drop session data
-    if (hardDropSessionRef.current.hardDrop) {
-      newGameSession.hardDrops++;
-      newGameSession.score += hardDropSessionRef.current.score;
+      return;
+    };
+
+    if (gameLoopDataRef.current.activeTetromino === undefined) {
+
+      setGameState(GameStateEnumeration.Error);
+      return;
+    };
+
+    if (gameLoopDataRef.current.state === GameStateEnumeration.HardDrop) {
+
+      gameLoopDataRef.current.passedMillisecondsTick = 0;
+      return;
+    };
+
+    if (gameLoopDataRef.current.state === GameStateEnumeration.SoftDrop) {
+
+      gameLoopDataRef.current.passedMillisecondsTick = 0;
+      moveTetromino(gameLoopDataRef.current.activeTetromino, 0, 0, 1);
+    };
+
+    if (gameLoopDataRef.current.state === GameStateEnumeration.MoveLeft) {
+
+      moveTetromino(gameLoopDataRef.current.activeTetromino, 0, -1, 0);
+    };
+
+    if (gameLoopDataRef.current.state === GameStateEnumeration.MoveRight) {
+
+      moveTetromino(gameLoopDataRef.current.activeTetromino, 0, 1, 0);
+    };
+
+    if ((gameLoopDataRef.current.state === GameStateEnumeration.Idle ||
+      gameLoopDataRef.current.state === GameStateEnumeration.MoveLeft ||
+      gameLoopDataRef.current.state === GameStateEnumeration.MoveRight) &&
+      gameLoopDataRef.current.passedMillisecondsTick >= gameLoopDataRef.current.speedTick) {
+
+      gameLoopDataRef.current.passedMillisecondsTick = 0;
+
+      if (!moveTetromino(gameLoopDataRef.current.activeTetromino, 0, 0, 1)) {
+
+        if (fixTetromino()) {
+          setGameState(GameStateEnumeration.Spawning);
+        }
+        else {
+          setGameState(GameStateEnumeration.Error);
+        };
+      };
+    };
+  };
+
+  const updateSessionData = () => {
+
+    if (gameLoopDataRef.current.state === GameStateEnumeration.Spawning) {
+
+      var newGameSession = { ...gameSessionRef.current }
+      newGameSession.moves++;
+      newGameSession.lines += gameLoopDataRef.current.moveData.lines;
+      newGameSession.score += gameLoopDataRef.current.moveData.score;
+
+      if (gameLoopDataRef.current.moveData.hardDrop)
+        newGameSession.hardDrops++;
+
+      newGameSession.level = getLevel(newGameSession.lines);
+
+      gameLoopDataRef.current.speedTick = getSpeedTick(newGameSession.level);
+      gameLoopDataRef.current.moveData = getMoveData();
+
+      setGameSession(newGameSession);
     }
+  };
 
-    setGameSession(newGameSession);
-    setMoveSession(getMoveSession());
-    setHardDropSession(getHardDropSession());
+  const setGameState = (newState: GameStateEnumeration) => {
 
-  }, [moveCountRef.current]);
+    gameLoopDataRef.current.lastState = gameLoopDataRef.current.state;
+    gameLoopDataRef.current.state = newState;
+  };
 
   const play = () => {
 
-    setGameState(GameStateEnumeration.Idle);
-    gameTickIdRef.current = window.setTimeout(onGameTick, gameSessionRef.current.speedTick);
+    const newState: GameStateEnumeration = (gameLoopDataRef.current.activeTetromino !== undefined) ? GameStateEnumeration.Idle : GameStateEnumeration.Spawning;
+    setGameState(newState);
   };
 
   const pause = () => {
     setGameState(GameStateEnumeration.Paused);
-  };
-
-  const resetGameTick = (tick?: number) => {
-
-    clearTimeout(gameTickIdRef.current);
-
-    var speedTick = (tick !== undefined) ? tick : gameSessionRef.current.speedTick;
-    gameTickIdRef.current = window.setTimeout(onGameTick, speedTick);
-  };
-
-  const onGameTick = () => {
-
-    if (gameStateRef.current !== GameStateEnumeration.Idle) {
-
-      // Clear handles
-      clearTimeout(gameTickIdRef.current);
-      return;
-    };
-
-    // Check for spawning
-    if (activeTetrominoRef.current === null) {
-
-      setGameState(GameStateEnumeration.Spawning);
-      clearTimeout(gameTickIdRef.current);
-      return;
-    };
-
-    if (activeTetrominoRef.current !== null &&
-      gameStateRef.current === GameStateEnumeration.Idle) {
-
-      if (!moveTetromino(activeTetrominoRef.current, 0, 0, 1)) {
-
-        if (!fixTetromino()) {
-
-          setGameState(GameStateEnumeration.Error);
-          clearTimeout(gameTickIdRef.current);
-        };
-      };
-    };
-
-    // Reset game tick
-    resetGameTick();
   };
 
   const clearGameBoard = (clearType: 'All' | 'NonFilled') => {
@@ -256,25 +282,23 @@ const GameBoard: React.FC<Props> = (props) => {
 
     var nextTetromino = tetrominoQueueRef.current.shift();
     if (!nextTetromino)
-      return;
+      return false;
 
     // Make sure we begin on the right positions
     nextTetromino.positionX = (GameConstants.BlockCountWidth / 2) - 2
     nextTetromino.positionY = 0;
     nextTetromino.rotation = 0;
 
-    // Re-fill the tetromino queue
-    fillTetrominoQueue();
+    var drawResult = drawTetromino(nextTetromino, false);
+    if (drawResult) {
 
-    // Check if the new tetromino can be drawed on the board
-    if (tryDrawTetromino(nextTetromino, false)) {
+      gameLoopDataRef.current.activeTetromino = nextTetromino;
 
-      setGameState(GameStateEnumeration.Idle);
-      setActiveTetromino(nextTetromino);
+      // Re-fill the tetromino queue
+      fillTetrominoQueue();
     }
-    else {
-      setGameState(GameStateEnumeration.GameOver);
-    }
+
+    return drawResult;
   };
 
   const moveTetromino = (
@@ -293,12 +317,11 @@ const GameBoard: React.FC<Props> = (props) => {
     // Check new position on the board
     var posX = tetromino.positionX + newPosX;
     var posY = tetromino.positionY + newPosY;
-    if (tryDrawTetromino(tetromino, false, rotation, posX, posY)) {
+    if (drawTetromino(tetromino, false, rotation, posX, posY)) {
 
       tetromino.rotation = rotation;
       tetromino.positionX = posX;
       tetromino.positionY = posY;
-      setActiveTetromino({ ...tetromino });
 
       return true;
     };
@@ -308,15 +331,16 @@ const GameBoard: React.FC<Props> = (props) => {
 
   const fixTetromino = () => {
 
-    if (activeTetrominoRef.current === null)
+    if (gameLoopDataRef.current.activeTetromino === undefined)
       return false;
 
-    if (!tryDrawTetromino(activeTetrominoRef.current, true))
+    if (!drawTetromino(gameLoopDataRef.current.activeTetromino, true))
       return false;
 
-    setGameState(GameStateEnumeration.Spawning);
-
+    // Get filled rows
     var filledRowIndices = getFilledRows(gameBoardRef.current);
+
+    // Clear filled rows
     filledRowIndices.forEach(rowIndex => {
 
       if (rowIndex >= gameBoardRef.current.length)
@@ -326,12 +350,11 @@ const GameBoard: React.FC<Props> = (props) => {
       gameBoardRef.current.unshift(getGameBoardRow(GameConstants.BlockCountWidth));
     })
 
-    var newMoveSession = { ...moveSessionRef.current }
-    newMoveSession.lines += filledRowIndices.length;
-    newMoveSession.score += getLineScore(gameSessionRef.current.level, filledRowIndices.length);
-    setMoveSession(newMoveSession);
+    // Update score
+    gameLoopDataRef.current.moveData.lines = filledRowIndices.length;
+    gameLoopDataRef.current.moveData.score += getLineScore(gameSessionRef.current.level, filledRowIndices.length);
 
-    setMoveCount(moveCountRef.current + 1);
+    // setMoveCount(moveCountRef.current + 1);
     setGameBoard([...gameBoardRef.current]);
 
     return true;
@@ -339,28 +362,26 @@ const GameBoard: React.FC<Props> = (props) => {
 
   const hardDropTetromino = () => {
 
-    if (activeTetrominoRef.current === null)
+    if (gameLoopDataRef.current.activeTetromino === undefined)
       return;
 
-    var hardDropBlockCount = 0;
+    gameLoopDataRef.current.moveData.hardDrop = true;
+    while (moveTetromino(gameLoopDataRef.current.activeTetromino, 0, 0, 1))
+      gameLoopDataRef.current.moveData.hardDropBlockCount++;
 
-    while (moveTetromino(activeTetrominoRef.current, 0, 0, 1))
-      hardDropBlockCount++;
+    // Update score
+    gameLoopDataRef.current.moveData.score += gameLoopDataRef.current.moveData.hardDropBlockCount * GameConstants.HardDropScorePerBlock;
 
-    var newHardDropSession = { ...hardDropSessionRef.current }
-    newHardDropSession.hardDrop = true;
-    newHardDropSession.hardDropBlockCount = hardDropBlockCount;
-    newHardDropSession.score = hardDropBlockCount * GameConstants.HardDropScorePerBlock;
-    setHardDropSession(newHardDropSession);
+    if (fixTetromino()) {
 
-    if (!fixTetromino()) {
-
-      setGameState(GameStateEnumeration.Error);
-      return;
+      setGameState(GameStateEnumeration.Spawning);
     }
+    else {
+      setGameState(GameStateEnumeration.Error);
+    };
   };
 
-  const tryDrawTetromino = (
+  const drawTetromino = (
     tetromino: ITetrominoBlock,
     fixTetromino: boolean,
     rotation: number = tetromino.rotation,
@@ -422,6 +443,24 @@ const GameBoard: React.FC<Props> = (props) => {
     return true;
   };
 
+  const handleGameBoardContainerSizeChanged = (height: number, width: number) => {
+
+    var blockHeightSize =
+      Math.floor(height / GameConstants.BlockCountHeight) -
+      (borderSpacing * 2);
+
+    var blockWidthSize =
+      Math.floor(width / GameConstants.BlockCountWidth) -
+      (borderSpacing * 2);
+
+    var newBlockSize = blockHeightSize;
+    if (newBlockSize > blockWidthSize)
+      newBlockSize = blockWidthSize;
+
+    if (blockSizeRef.current !== newBlockSize)
+      setBlockSize(newBlockSize);
+  };
+
   const renderStats = () => {
 
     return (
@@ -438,6 +477,25 @@ const GameBoard: React.FC<Props> = (props) => {
               alignContent: 'flex-end',
               alignItems: 'flex-end'
             }}>
+
+            {/* <Fab
+              color='secondary'
+              onClick={() => {
+
+                if (gameLoopDataRef.current.state !== GameStateEnumeration.Idle)
+                  return;
+
+                if (gameLoopDataRef.current.activeTetromino === undefined)
+                  return;
+
+                moveTetromino(gameLoopDataRef.current.activeTetromino, 1, 0, 0);
+              }}>
+
+              <Typography
+                variant='h4'>
+                A
+              </Typography>
+            </Fab> */}
 
             <Typography
               variant='h6'>
@@ -476,6 +534,26 @@ const GameBoard: React.FC<Props> = (props) => {
     );
   };
 
+  const renderStatePanel = () => {
+
+    return (
+
+      <Box
+        sx={{
+          backgroundColor: 'blue',
+          height: statePanelHeight,
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          justifyItems: 'center',
+        }}>
+
+
+
+      </Box>
+    );
+  };
+
   const renderGameBoard = () => {
 
     return (
@@ -484,6 +562,7 @@ const GameBoard: React.FC<Props> = (props) => {
         component='table'
         sx={{
           borderSpacing: borderSpacing,
+          backgroundColor: props.backgroundColor,
           borderLeftWidth: 4,
           borderLeftStyle: 'solid',
           borderLeftColor: (theme) => theme.palette.primary.main,
@@ -514,9 +593,9 @@ const GameBoard: React.FC<Props> = (props) => {
                       sx={{
                         height: blockSize,
                         width: blockSize,
-                        ...block.style
+                        ...block.style,
+                        backgroundColor: 'green'
                       }}>
-
 
                     </Box>
                   );
@@ -593,13 +672,13 @@ const GameBoard: React.FC<Props> = (props) => {
           color='primary'
           onClick={() => {
 
-            if (gameStateRef.current !== GameStateEnumeration.Idle)
+            if (gameLoopDataRef.current.state !== GameStateEnumeration.Idle)
               return;
 
-            if (activeTetrominoRef.current === null)
+            if (gameLoopDataRef.current.activeTetromino === undefined)
               return;
 
-            moveTetromino(activeTetrominoRef.current, -1, 0, 0);
+            moveTetromino(gameLoopDataRef.current.activeTetromino, -1, 0, 0);
           }}>
 
           <ArrowUpwardIcon />
@@ -613,15 +692,15 @@ const GameBoard: React.FC<Props> = (props) => {
 
           <Fab
             color='primary'
-            onClick={() => {
+            onMouseDown={() => {
 
-              if (gameStateRef.current !== GameStateEnumeration.Idle)
-                return;
+              if (gameLoopDataRef.current.state === GameStateEnumeration.Idle)
+                setGameState(GameStateEnumeration.MoveLeft);
+            }}
+            onMouseUp={() => {
 
-              if (activeTetrominoRef.current === null)
-                return;
-
-              moveTetromino(activeTetrominoRef.current, 0, -1, 0);
+              if (gameLoopDataRef.current.state === GameStateEnumeration.MoveLeft)
+                setGameState(GameStateEnumeration.Idle);
             }}>
 
             <ArrowBackIcon />
@@ -631,15 +710,15 @@ const GameBoard: React.FC<Props> = (props) => {
 
           <Fab
             color='primary'
-            onClick={() => {
+            onMouseDown={() => {
 
-              if (gameStateRef.current !== GameStateEnumeration.Idle)
-                return;
+              if (gameLoopDataRef.current.state === GameStateEnumeration.Idle)
+                setGameState(GameStateEnumeration.MoveRight);
+            }}
+            onMouseUp={() => {
 
-              if (activeTetrominoRef.current === null)
-                return;
-
-              moveTetromino(activeTetrominoRef.current, 0, 1, 0);
+              if (gameLoopDataRef.current.state === GameStateEnumeration.MoveRight)
+                setGameState(GameStateEnumeration.Idle);
             }}>
 
             <ArrowForwardIcon />
@@ -648,15 +727,15 @@ const GameBoard: React.FC<Props> = (props) => {
 
         <Fab
           color='primary'
-          onClick={() => {
+          onMouseDown={() => {
 
-            if (gameStateRef.current !== GameStateEnumeration.Idle)
-              return;
+            if (gameLoopDataRef.current.state === GameStateEnumeration.Idle)
+              setGameState(GameStateEnumeration.SoftDrop);
+          }}
+          onMouseUp={() => {
 
-            if (activeTetrominoRef.current === null)
-              return;
-
-            moveTetromino(activeTetrominoRef.current, 0, 0, 1);
+            if (gameLoopDataRef.current.state === GameStateEnumeration.SoftDrop)
+              setGameState(GameStateEnumeration.Idle);
           }}>
 
           <ArrowDownwardIcon />
@@ -682,13 +761,13 @@ const GameBoard: React.FC<Props> = (props) => {
           color='secondary'
           onClick={() => {
 
-            if (gameStateRef.current !== GameStateEnumeration.Idle)
+            if (gameLoopDataRef.current.state !== GameStateEnumeration.Idle)
               return;
 
-            if (activeTetrominoRef.current === null)
+            if (gameLoopDataRef.current.activeTetromino === undefined)
               return;
 
-            moveTetromino(activeTetrominoRef.current, 1, 0, 0);
+            moveTetromino(gameLoopDataRef.current.activeTetromino, 1, 0, 0);
           }}>
 
           <Typography
@@ -703,13 +782,13 @@ const GameBoard: React.FC<Props> = (props) => {
           color='secondary'
           onClick={() => {
 
-            if (gameStateRef.current !== GameStateEnumeration.Idle)
+            if (gameLoopDataRef.current.state !== GameStateEnumeration.Idle)
               return;
 
-            if (activeTetrominoRef.current === null)
+            if (gameLoopDataRef.current.activeTetromino === undefined)
               return;
 
-            moveTetromino(activeTetrominoRef.current, -1, 0, 0);
+            moveTetromino(gameLoopDataRef.current.activeTetromino, -1, 0, 0);
           }}>
 
           <Typography
@@ -724,10 +803,12 @@ const GameBoard: React.FC<Props> = (props) => {
           color='secondary'
           onClick={() => {
 
-            if (gameStateRef.current !== GameStateEnumeration.Idle)
-              return;
+            if (gameLoopDataRef.current.state === GameStateEnumeration.Idle) {
 
-            setGameState(GameStateEnumeration.HardDrop);
+              setGameState(GameStateEnumeration.HardDrop);
+              hardDropTetromino();
+            }
+
           }}>
 
           <Typography
@@ -739,7 +820,10 @@ const GameBoard: React.FC<Props> = (props) => {
     );
   };
 
-  const renderGameControls = () => {
+  const renderControlPanel = () => {
+
+    if (!props.showControlPanel)
+      return undefined;
 
     return (
 
@@ -771,38 +855,44 @@ const GameBoard: React.FC<Props> = (props) => {
         flexDirection: 'column'
       }}>
 
+      {renderStatePanel()}
+
       <Box
         sx={{
-          width: '100%',
-          justifyContent: 'center',
-          justifyItems: 'center',
+          backgroundColor: 'yellow',
           flex: 'auto',
           display: 'flex',
-          flexDirection: 'row'
+          flexDirection: 'row',
+          justifyContent: 'center',
+          justifyItems: 'center',
         }}>
 
         <Box
           sx={{
-            width: '20%'
+            backgroundColor: 'red',
+            width: `${statsWidthPercentage}%`
           }}>
           {renderStats()}
         </Box>
-        <Box
-          sx={{
-            justifySelf: 'center'
-          }}>
+
+        <AutoSizeContainer
+          renderMode='Direct'
+          onSizeChanged={handleGameBoardContainerSizeChanged}>
           {renderGameBoard()}
-        </Box>
+        </AutoSizeContainer>
+
         <Box
           sx={{
-            minWidth: '20%'
+            backgroundColor: 'red',
+            width: `${previewWidthPercentage}%`
           }}>
           {renderPreview()}
         </Box>
       </Box>
 
-      {renderGameControls()}
+      {renderControlPanel()}
     </Box>
+
   );
 }
 

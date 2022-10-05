@@ -1,9 +1,5 @@
-import { IBlock, GameConstants } from './game';
+import { ITetrominoBlock, GameConstants } from './game';
 
-export interface ITetrominoBlock extends IBlock {
-  rotation: number;
-  matrix: number[][][];
-};
 
 export const I_Tetromino: ITetrominoBlock = {
   positionX: (GameConstants.BlockCountWidth / 2) - 2,

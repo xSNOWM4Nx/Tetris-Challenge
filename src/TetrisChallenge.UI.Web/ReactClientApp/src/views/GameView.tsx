@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Grid } from '@mui/material';
-import { ViewContainer, AutoSizeContainer } from '@daniel.neuweiler/react-lib-module';
+import { SystemContext, ViewContainer, AutoSizeContainer } from '@daniel.neuweiler/react-lib-module';
 
 import { ViewKeys } from './navigation';
 import GameBoard from './../components/GameBoard';
+import { SettingKeys } from './SettingsView';
 
 interface ILocalProps {
 }
@@ -14,16 +15,11 @@ const ErrorView: React.FC<Props> = (props) => {
   // Fields
   const contextName: string = ViewKeys.GameView
 
-  const renderGameBoard = (height: number, width: number) => {
+  // Contexts
+  const systemContext = useContext(SystemContext);
 
-    return (
-
-      <GameBoard
-        height={height}
-        width={width}
-        borderSpacing={1} />
-    );
-  };
+  // Get settings
+  const showControlPanel = systemContext.getSetting(SettingKeys.ShowControlPanel);
 
   return (
 
@@ -31,7 +27,7 @@ const ErrorView: React.FC<Props> = (props) => {
       isScrollLocked={true}>
 
       <Grid
-        height={'100%'}
+        height='100%'
         container={true}>
 
         <Grid
@@ -41,23 +37,18 @@ const ErrorView: React.FC<Props> = (props) => {
           sm={12}
           xs={12}>
 
-          <AutoSizeContainer
-            renderMode='Direct'
-            onRenderSizedChild={renderGameBoard} />
+          <GameBoard
+            borderSpacing={1}
+            showControlPanel={showControlPanel} />
+
         </Grid>
         <Grid
           item={true}
-          sx={{
-            display: {
-              md: 'none',
-              lg: 'block'
-            }
-          }}
           lg={6}>
+
           <Box
             sx={{
               height: '100%',
-              width: '100%',
               backgroundColor: 'red'
             }}>
 

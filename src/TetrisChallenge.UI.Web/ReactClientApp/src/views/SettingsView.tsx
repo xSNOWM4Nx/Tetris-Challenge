@@ -6,8 +6,7 @@ import { ViewKeys } from './navigation';
 import { ThemeKeys } from './../styles';
 
 export class SettingKeys {
-  public static ShowDataOverlayOnMap = 'ShowDataOverlayOnMap';
-  public static ShowLogOverlayOnMap = 'ShowLogOverlayOnMap';
+  public static ShowControlPanel = 'ShowControlPanel';
 };
 
 interface ILocalProps {
@@ -86,7 +85,7 @@ const SettingsView: React.FC<Props> = (props) => {
     );
   };
 
-  const renderMapSettings = () => {
+  const renderGameSettings = () => {
 
     return (
       <Card>
@@ -96,7 +95,7 @@ const SettingsView: React.FC<Props> = (props) => {
           <Typography
             variant={'h6'}
             gutterBottom={true}>
-            {'Map settings'}
+            {'Game settings'}
           </Typography>
 
           <FormGroup>
@@ -104,13 +103,13 @@ const SettingsView: React.FC<Props> = (props) => {
               control={
                 <Switch
                   color='secondary'
-                  name={SettingKeys.ShowDataOverlayOnMap}
-                  checked={getSetting(SettingKeys.ShowDataOverlayOnMap, 'boolean')}
+                  name={SettingKeys.ShowControlPanel}
+                  checked={getSetting(SettingKeys.ShowControlPanel, 'boolean')}
                   onChange={handleSettingsChange} />
               }
-              label="Show data overlay on map"
+              label="Show control panel"
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               control={
                 <Switch
                   color='secondary'
@@ -119,7 +118,7 @@ const SettingsView: React.FC<Props> = (props) => {
                   onChange={handleSettingsChange} />
               }
               label="Show log overlay on map"
-            />
+            /> */}
           </FormGroup>
         </CardContent>
       </Card>
@@ -135,7 +134,7 @@ const SettingsView: React.FC<Props> = (props) => {
 
       <Box sx={{ height: (theme) => theme.spacing(1) }} />
 
-      {renderMapSettings()}
+      {renderGameSettings()}
     </ViewContainer>
   );
 }

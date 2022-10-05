@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@daniel.neuweiler/ts-lib-module": "file:../../../../ts-lib-module/daniel.neuweiler-ts-lib-module-0.1.0-alpha.17.tgz",
     "@daniel.neuweiler/react-lib-module": "file:../../../../react-lib-module/daniel.neuweiler-react-lib-module-0.1.0-alpha.16.tgz",
+    "@daniel.neuweiler/ts-lib-module": "file:../../../../ts-lib-module/daniel.neuweiler-ts-lib-module-0.1.0-alpha.17.tgz",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.4.1",
