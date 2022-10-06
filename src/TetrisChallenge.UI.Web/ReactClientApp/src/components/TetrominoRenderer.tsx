@@ -3,10 +3,8 @@ import { Box, Grid } from '@mui/material';
 import { ITetrominoBlock, IGameBoardBlock, getGameBoard } from './../types';
 
 interface ILocalProps {
-  height: number;
-  width: number;
   tetromino: ITetrominoBlock;
-  maxBlockSize?: number;
+  blockSize: number;
   borderSpacing?: number;
   backgroundColor?: string;
 }
@@ -20,30 +18,7 @@ const TetrominoRenderer: React.FC<Props> = (props) => {
   const previewBoardBlockCount: number = 4;
 
   // States
-  const [blockSize, setBlockSize] = useState(0);
   const [previewBoard, setPreviewBoard] = useState<Array<Array<IGameBoardBlock>>>(getGameBoard(previewBoardBlockCount, previewBoardBlockCount));
-
-  // Effects
-  useEffect(() => {
-
-    var blockHeightSize =
-      Math.floor(props.height / previewBoardBlockCount) -
-      (borderSpacing * 2);
-
-    var blockWidthSize =
-      Math.floor(props.width / previewBoardBlockCount) -
-      (borderSpacing * 2);
-
-    var newBlockSize = blockHeightSize;
-    if (newBlockSize > blockWidthSize)
-      newBlockSize = blockWidthSize;
-
-    if (props.maxBlockSize !== undefined && newBlockSize > props.maxBlockSize)
-      newBlockSize = props.maxBlockSize;
-
-    setBlockSize(newBlockSize);
-
-  }, [props.width, props.height, props.maxBlockSize]);
 
   return (
 
@@ -74,8 +49,8 @@ const TetrominoRenderer: React.FC<Props> = (props) => {
                     key={blockIndex}
                     component='td'
                     sx={{
-                      height: blockSize,
-                      width: blockSize,
+                      height: props.blockSize,
+                      width: props.blockSize,
                       ...blockStyle
                     }}>
 

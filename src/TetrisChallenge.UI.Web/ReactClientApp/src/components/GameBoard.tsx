@@ -29,9 +29,6 @@ const GameBoard: React.FC<Props> = (props) => {
   // Fields
   const contextName: string = 'GameBoard';
   const borderSpacing = (props.borderSpacing !== undefined) ? props.borderSpacing : 0
-  const statsWidthPercentage = 20;
-  const previewWidthPercentage = 20;
-  const boardWidthPercentage = 100 - statsWidthPercentage - previewWidthPercentage;
   const statePanelHeight = 64;
   const controlPanelHeight = 192;
 
@@ -443,42 +440,21 @@ const GameBoard: React.FC<Props> = (props) => {
     return true;
   };
 
-  const handleGameBoardContainerSizeChanged = (height: number, width: number) => {
-
-    var blockHeightSize =
-      Math.floor(height / GameConstants.BlockCountHeight) -
-      (borderSpacing * 2);
-
-    var blockWidthSize =
-      Math.floor(width / GameConstants.BlockCountWidth) -
-      (borderSpacing * 2);
-
-    var newBlockSize = blockHeightSize;
-    if (newBlockSize > blockWidthSize)
-      newBlockSize = blockWidthSize;
-
-    if (blockSizeRef.current !== newBlockSize)
-      setBlockSize(newBlockSize);
-  };
-
-  const renderStats = () => {
+  const renderStats = (width: number) => {
 
     return (
 
-      <AutoSizeContainer
-        renderMode='Direct'
-        onRenderSizedChild={(height, width) =>
+      <Box
+        sx={{
+          width: width,
+          marginRight: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignContent: 'flex-end',
+          alignItems: 'flex-end'
+        }}>
 
-          <Box
-            sx={{
-              paddingRight: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignContent: 'flex-end',
-              alignItems: 'flex-end'
-            }}>
-
-            {/* <Fab
+        {/* <Fab
               color='secondary'
               onClick={() => {
 
@@ -497,40 +473,37 @@ const GameBoard: React.FC<Props> = (props) => {
               </Typography>
             </Fab> */}
 
-            <Typography
-              variant='h6'>
-              {'Lines'}
-            </Typography>
-            <Typography
-              variant='h3'>
-              {gameSessionRef.current.lines}
-            </Typography>
+        <Typography
+          variant='h6'>
+          {'Lines'}
+        </Typography>
+        <Typography
+          variant='h3'>
+          {gameSessionRef.current.lines}
+        </Typography>
 
-            <Box sx={{ width: (theme) => theme.spacing(4) }} />
+        <Box sx={{ width: (theme) => theme.spacing(4) }} />
 
-            <Typography
-              variant='h6'>
-              {'Level'}
-            </Typography>
-            <Typography
-              variant='h3'>
-              {gameSessionRef.current.level}
-            </Typography>
+        <Typography
+          variant='h6'>
+          {'Level'}
+        </Typography>
+        <Typography
+          variant='h3'>
+          {gameSessionRef.current.level}
+        </Typography>
 
-            <Box sx={{ width: (theme) => theme.spacing(4) }} />
+        <Box sx={{ width: (theme) => theme.spacing(4) }} />
 
-            <Typography
-              variant='h6'>
-              {'Score'}
-            </Typography>
-            <Typography
-              variant='h3'>
-              {gameSessionRef.current.score}
-            </Typography>
-          </Box>
-
-        } />
-
+        <Typography
+          variant='h6'>
+          {'Score'}
+        </Typography>
+        <Typography
+          variant='h3'>
+          {gameSessionRef.current.score}
+        </Typography>
+      </Box>
     );
   };
 
@@ -608,48 +581,36 @@ const GameBoard: React.FC<Props> = (props) => {
     );
   };
 
-  const renderPreview = () => {
+  const renderPreview = (width: number) => {
 
     return (
 
-      <AutoSizeContainer
-        renderMode='Direct'
-        onRenderSizedChild={(height, width) =>
+      <Box
+        sx={{
+          width: width,
+          marginLeft: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignContent: 'flex-start',
+          alignItems: 'flex-start'
+        }}>
 
-          <Box
-            sx={{
-              paddingLeft: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignContent: 'flex-start',
-              alignItems: 'flex-start'
-            }}>
+        <TetrominoRenderer
+          tetromino={tetrominoQueue[0]}
+          blockSize={blockSize} />
 
-            <TetrominoRenderer
-              height={height}
-              width={width}
-              tetromino={tetrominoQueue[0]}
-              maxBlockSize={blockSize} />
+        <Box sx={{ width: (theme) => theme.spacing(1) }} />
 
-            <Box sx={{ width: (theme) => theme.spacing(1) }} />
+        <TetrominoRenderer
+          tetromino={tetrominoQueue[1]}
+          blockSize={blockSize} />
 
-            <TetrominoRenderer
-              height={height}
-              width={width}
-              tetromino={tetrominoQueue[1]}
-              maxBlockSize={blockSize} />
+        <Box sx={{ width: (theme) => theme.spacing(1) }} />
 
-            <Box sx={{ width: (theme) => theme.spacing(1) }} />
-
-            <TetrominoRenderer
-              height={height}
-              width={width}
-              tetromino={tetrominoQueue[2]}
-              maxBlockSize={blockSize} />
-          </Box>
-
-        } />
-
+        <TetrominoRenderer
+          tetromino={tetrominoQueue[2]}
+          blockSize={blockSize} />
+      </Box>
     );
   };
 
@@ -820,6 +781,45 @@ const GameBoard: React.FC<Props> = (props) => {
     );
   };
 
+  const renderGameContent = (height: number, width: number) => {
+
+    var gameBoardWidth = 0.5 * width;
+    var statsWidth = 0.25 * width;
+    var previewWidth = 0.25 * width;
+
+    var blockHeightSize =
+      Math.floor(height / GameConstants.BlockCountHeight) -
+      (borderSpacing * 2);
+
+    var blockWidthSize =
+      Math.floor(gameBoardWidth / GameConstants.BlockCountWidth) -
+      (borderSpacing * 2);
+
+    var newBlockSize = blockHeightSize;
+    if (newBlockSize > blockWidthSize)
+      newBlockSize = blockWidthSize;
+
+    if (blockSizeRef.current !== newBlockSize)
+      setBlockSize(newBlockSize);
+
+    return (
+
+      <Box
+        sx={{
+          flex: 'auto',
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          justifyItems: 'center',
+        }}>
+
+        {renderStats(statsWidth)}
+        {renderGameBoard()}
+        {renderPreview(previewWidth)}
+      </Box>
+    );
+  };
+
   const renderControlPanel = () => {
 
     if (!props.showControlPanel)
@@ -829,11 +829,11 @@ const GameBoard: React.FC<Props> = (props) => {
 
       <Box
         sx={{
-          height: controlPanelHeight,
+          minHeight: controlPanelHeight,
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
-          justifyItems: 'center',
+          justifyItems: 'center'
         }}>
 
         {renderMovementControls()}
@@ -859,35 +859,12 @@ const GameBoard: React.FC<Props> = (props) => {
 
       <Box
         sx={{
-          backgroundColor: 'yellow',
-          flex: 'auto',
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          justifyItems: 'center',
+          flex: 'auto'
         }}>
 
-        <Box
-          sx={{
-            backgroundColor: 'red',
-            width: `${statsWidthPercentage}%`
-          }}>
-          {renderStats()}
-        </Box>
-
         <AutoSizeContainer
-          renderMode='Direct'
-          onSizeChanged={handleGameBoardContainerSizeChanged}>
-          {renderGameBoard()}
-        </AutoSizeContainer>
-
-        <Box
-          sx={{
-            backgroundColor: 'red',
-            width: `${previewWidthPercentage}%`
-          }}>
-          {renderPreview()}
-        </Box>
+          showContentOnResize={true}
+          onRenderSizedChild={renderGameContent} />
       </Box>
 
       {renderControlPanel()}
