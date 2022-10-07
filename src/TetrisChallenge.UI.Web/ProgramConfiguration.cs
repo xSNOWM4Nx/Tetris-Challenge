@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace TetrisChallenge.UI.Web
 {
@@ -27,6 +28,11 @@ namespace TetrisChallenge.UI.Web
         {
             var app = _builder.Build();
 
+            // Register application callbacks
+            app.Lifetime.ApplicationStarted.Register(() => ApplicationStarted(app));
+            app.Lifetime.ApplicationStopping.Register(() => ApplicationStopping());
+            app.Lifetime.ApplicationStopped.Register(() => ApplicationStopped());
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -43,6 +49,9 @@ namespace TetrisChallenge.UI.Web
             app.UseSpaStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -62,6 +71,18 @@ namespace TetrisChallenge.UI.Web
             });
 
             app.Run();
+        }
+
+        private static void ApplicationStarted(IApplicationBuilder app)
+        {
+        }
+
+        private static void ApplicationStopping()
+        {
+        }
+
+        private static void ApplicationStopped()
+        {
         }
     }
 }

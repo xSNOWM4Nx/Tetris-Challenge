@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using TetrisChallenge.UI.Web.Data;
+using TetrisChallenge.UI.Web.Identity;
 
 namespace TetrisChallenge.UI.Web
 {
@@ -22,6 +24,14 @@ namespace TetrisChallenge.UI.Web
         public void Initialize()
         {
             IServiceCollection services = _builder.Services;
+
+            // Database configurations
+            services.AddDatabaseConfiguration(_builder.Configuration);
+
+            // Identity
+            services.AddIdentity();
+            services.AddJwtBearerAuthentication(_builder.Configuration);
+            services.AddUserRoleAuthorization();
 
             services.AddControllersWithViews();
 
