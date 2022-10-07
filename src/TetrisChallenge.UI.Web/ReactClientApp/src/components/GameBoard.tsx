@@ -33,16 +33,13 @@ const GameBoard: React.FC<Props> = (props) => {
   const controlPanelHeight = 192;
 
   // States
-  const [blockSize, setBlockSize] = useState(0);
   const [gameBoard, setGameBoard] = useState<Array<Array<IGameBoardBlock>>>(getGameBoard(GameConstants.BlockCountHeight, GameConstants.BlockCountWidth));
   const [gameSession, setGameSession] = useState<IGameSession>(getGameSession());
   const [tetrominoQueue, setTetrominoQueue] = useState<Array<ITetrominoBlock>>([]);
 
   // Refs
   const gameLoopDataRef = useRef<IGameLoopData>(getGameLoopData());
-
-  const blockSizeRef = useRef(blockSize);
-  blockSizeRef.current = blockSize;
+  const blockSizeRef = useRef(0);
 
   const gameBoardRef = useRef(gameBoard);
   gameBoardRef.current = gameBoard;
@@ -564,8 +561,8 @@ const GameBoard: React.FC<Props> = (props) => {
                       key={blockIndex}
                       component='td'
                       sx={{
-                        height: blockSize,
-                        width: blockSize,
+                        height: blockSizeRef.current,
+                        width: blockSizeRef.current,
                         ...block.style,
                         backgroundColor: 'green'
                       }}>
@@ -597,19 +594,19 @@ const GameBoard: React.FC<Props> = (props) => {
 
         <TetrominoRenderer
           tetromino={tetrominoQueue[0]}
-          blockSize={blockSize} />
+          blockSize={blockSizeRef.current} />
 
         <Box sx={{ width: (theme) => theme.spacing(1) }} />
 
         <TetrominoRenderer
           tetromino={tetrominoQueue[1]}
-          blockSize={blockSize} />
+          blockSize={blockSizeRef.current} />
 
         <Box sx={{ width: (theme) => theme.spacing(1) }} />
 
         <TetrominoRenderer
           tetromino={tetrominoQueue[2]}
-          blockSize={blockSize} />
+          blockSize={blockSizeRef.current} />
       </Box>
     );
   };
@@ -800,7 +797,7 @@ const GameBoard: React.FC<Props> = (props) => {
       newBlockSize = blockWidthSize;
 
     if (blockSizeRef.current !== newBlockSize)
-      setBlockSize(newBlockSize);
+      blockSizeRef.current = newBlockSize
 
     return (
 
