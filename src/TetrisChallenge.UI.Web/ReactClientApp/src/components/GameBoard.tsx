@@ -71,30 +71,6 @@ const GameBoard: React.FC<Props> = (props) => {
       window.cancelAnimationFrame(gameLoopDataRef.current.frameHandle);
     }
   }, []);
-  // useEffect(() => {
-
-  //   var boardElementsHeight = statePanelHeight;
-  //   if (props.showControlPanel)
-  //     boardElementsHeight += controlPanelHeight;
-
-  //   var blockHeightSize =
-  //     Math.floor((props.height - boardElementsHeight) / GameConstants.BlockCountHeight) -
-  //     (borderSpacing * 2);
-
-  //   var blockWidthSize =
-  //     Math.floor((boardWidthPercentage * props.width / 100) / GameConstants.BlockCountWidth) -
-  //     (borderSpacing * 2);
-
-  //   console.log('--------------->>')
-  //   console.log(blockHeightSize)
-
-  //   var newBlockSize = blockHeightSize;
-  //   if (newBlockSize > blockWidthSize)
-  //     newBlockSize = blockWidthSize;
-
-  //   setBlockSize(newBlockSize);
-
-  // }, [props.width, props.height, props.showControlPanel]);
 
   const gameLoop = (timeStamp: DOMHighResTimeStamp) => {
 
