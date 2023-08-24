@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 
 import HeaderBar from './../components/HeaderBar';
 import ViewInjectorDialog from './../dialogs/ViewInjectorDialog';
-import { ViewNavigationElements, ViewKeys } from './../views/navigation';
+import { ViewNavigationElements, ViewKeys, getImportableView } from './../navigation';
 
 interface ILocalProps {
   navigationRequest?: INavigationRequest;
@@ -79,7 +79,7 @@ const GamePage: React.FC<Props> = (props) => {
 
         <ViewInjector
           navigationElement={selectedViewNavigationElement}
-          onImportView={navigationElement => React.lazy(() => import(`./../${navigationElement.importPath}`))} />
+          onImportView={navigationElement => React.lazy(() => getImportableView(navigationElement.importPath))} />
       </Box>
 
       <ViewInjectorDialog

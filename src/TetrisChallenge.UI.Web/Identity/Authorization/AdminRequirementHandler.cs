@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using TetrisChallenge.Infrastructure.Identity.Roles;
+using TetrisChallenge.Infrastructure.Identity.User;
 
 namespace TetrisChallenge.UI.Web.Identity.Authorization
 {

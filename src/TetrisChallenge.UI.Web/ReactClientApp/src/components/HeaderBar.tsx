@@ -3,7 +3,7 @@ import { Box, AppBar, Toolbar, Typography, IconButton } from '@mui/material';
 import { INavigationElementBase, INavigationService, ServiceKeys } from '@daniel.neuweiler/ts-lib-module';
 import { SystemContext, SelectableMenu, ISelectableProps } from '@daniel.neuweiler/react-lib-module';
 
-import { ViewNavigationElements, ViewKeys } from './../views/navigation';
+import { ViewNavigationElements, ViewKeys } from './../navigation';
 
 import MenuIcon from '@mui/icons-material/Menu';
 

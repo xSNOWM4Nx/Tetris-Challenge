@@ -26,7 +26,7 @@ namespace TetrisChallenge.UI.Web
             IServiceCollection services = _builder.Services;
 
             // Database configurations
-            services.AddDatabaseConfiguration(_builder.Configuration);
+            services.AddDatabaseConfigurations(_builder.Configuration);
 
             // Identity
             services.AddIdentity();
@@ -34,12 +34,6 @@ namespace TetrisChallenge.UI.Web
             services.AddUserRoleAuthorization();
 
             services.AddControllersWithViews();
-
-            // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ReactClientApp/build";
-            });
         }
     }
 }

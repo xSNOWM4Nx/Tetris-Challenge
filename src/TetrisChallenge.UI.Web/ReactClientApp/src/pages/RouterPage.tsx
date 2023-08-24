@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import { INavigationService, ServiceKeys, INavigationRequest } from '@daniel.neuweiler/ts-lib-module';
 import { SystemContext } from '@daniel.neuweiler/react-lib-module';
 
+import RegistrationPage from './RegistrationPage';
 import GamePage from './GamePage';
 import ErrorPage from './ErrorPage';
 
@@ -101,9 +102,17 @@ const RouterPage: React.FC<Props> = (props) => {
             path="/"
             element={
               <Navigate
-                replace to="/game" />
+                replace to="/registration" />
             } />
 
+          <Route
+            path="/registration"
+            element={
+              <RegistrationPage
+                navigationRequest={navigationRequest}
+                onNavigationError={handleNavigationError} />
+            }
+          />
           <Route
             path="/game"
             element={

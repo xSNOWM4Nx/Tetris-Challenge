@@ -1,12 +1,12 @@
-﻿namespace TetrisChallenge.Infrastructure.Identity.Roles
+﻿namespace TetrisChallenge.Infrastructure.Identity.User
 {
     public enum GameUserRoleEnumeration
     {
         Undefined = 0,
         Anonymous = 1,
         Player = 50,
-        TeamLeader = 60,
+        SquadLeader = 60,
         Administrator = 99,
-        God = 100,
+        Developer = 100,
     }
 }

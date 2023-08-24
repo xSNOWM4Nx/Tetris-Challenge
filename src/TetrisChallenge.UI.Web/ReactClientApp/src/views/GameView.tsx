@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Box, Grid } from '@mui/material';
 import { SystemContext, ViewContainer, AutoSizeContainer } from '@daniel.neuweiler/react-lib-module';
 
-import { ViewKeys } from './navigation';
+import { ViewKeys } from './../navigation';
 import GameBoard from './../components/GameBoard';
 import { SettingKeys } from './SettingsView';
 

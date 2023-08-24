@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TetrisChallenge.UI.Web.Data;
 
 namespace TetrisChallenge.UI.Web
 {
@@ -28,6 +28,9 @@ namespace TetrisChallenge.UI.Web
         {
             var app = _builder.Build();
 
+            // Basic configurations
+            ConfigureApplication(app);
+
             // Register application callbacks
             app.Lifetime.ApplicationStarted.Register(() => ApplicationStarted(app));
             app.Lifetime.ApplicationStopping.Register(() => ApplicationStopping());
@@ -46,7 +49,6 @@ namespace TetrisChallenge.UI.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
 
             app.UseRouting();
 
@@ -55,22 +57,35 @@ namespace TetrisChallenge.UI.Web
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapFallbackToFile("index.html");
+
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
-            });
-
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ReactClientApp";
-
-                if (app.Environment.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
+                    pattern: "v1/{controller}/{action=Index}/{id?}");
             });
 
             app.Run();
+        }
+
+        private void ConfigureApplication(WebApplication app)
+        {
+            var appLifetime = app.Lifetime;
+
+            // Setup a logger
+            var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger(nameof(ConfigureApplication));
+
+            logger.LogInformation($"Configure application started.");
+
+            var result = DatabaseConfiguration.InitializeGameDbContext(app, logger);
+            if (!result)
+            {
+                logger.LogError($"Configure application aborted. Error on initializing Database context.");
+                appLifetime.StopApplication();
+                return;
+            }
+
+            logger.LogInformation($"Configure application completed.");
         }
 
         private static void ApplicationStarted(IApplicationBuilder app)
